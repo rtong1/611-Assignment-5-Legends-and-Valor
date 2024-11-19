@@ -1,9 +1,11 @@
+import java.util.Random;
+
 /**
  * Represents the Monster character type, with unique attributes. This class also contain the attributes effect under
  * different kinds of spells
  */
 
-public class Monster extends Character {
+public class Monster extends Character implements Attackable<Hero> {
     private int baseDamage;
     private int defense;
     private int dodgeChance;
@@ -31,6 +33,7 @@ public class Monster extends Character {
 
     // Getters
     public int getHealth() { return healthPoints; }
+    public int getCurrentHealth() { return healthPoints; }
     public int getBaseDamage() { return baseDamage; }
     public int getBaseDefense() { return defense; }
     public double getDodgeChance() { return dodgeChance * 0.01; }  // Convert dodge chance to percentage
@@ -64,9 +67,30 @@ public class Monster extends Character {
     }
 
 
-    private boolean monsterAttack(Hero target){
+    public void attack(Hero target){
+        Random random = new Random();
+        if (target != null) {
+            double dodgeChance = target.getCurrentAgility() * 0.002;
+            double reducedDamage = getBaseDamage() * 0.05 - target.getInventory().useArmor();
+            double damage = Math.max(0, reducedDamage);
 
-        return true;
+            // If hero fails to dodge
+            if ((random.nextInt(100) + 1) > dodgeChance) {
+                // Apply final damage
+                int finalDamage = (int) Math.ceil(damage);
+                target.takeDamage(finalDamage);
+
+                System.out.println(getName() + " attacked " + target.getName() + " for " + finalDamage + " damage.");
+                System.out.println(target.getName() + "'s remaining HP: " + target.getCurrentHealth());
+
+                // Check if hero has fainted
+                if (!target.isAlive()) {
+                    System.out.println(target.getName() + " fainted!");
+                }
+            } else {
+                System.out.println(target.getName() + " dodged the attack from " + getName() + "!");
+            }
+        }
     }
      /*
     For Legends and Valor

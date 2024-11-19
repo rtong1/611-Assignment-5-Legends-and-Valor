@@ -1,8 +1,10 @@
+import java.io.Serializable;
+
 /**
  *  Defines a weapon item, providing damage increase to characters who equip it. This class include properties such as
  *  damage, required hands.
  */
-public class Weapon extends Item {
+public class Weapon extends Item implements Buyable {
     private int damage;
     private int requiredHands;
 

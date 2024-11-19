@@ -18,6 +18,16 @@ public abstract class Item {
     //Getters
     public String getName() { return name; }
     public int getCost() { return cost; }
+    public int getSellValue() {
+        return cost/2; }
+    public void buy(Hero hero) {
+        hero.deductGold(cost);
+        hero.getInventory().addItem(this);
+    }
+    public void sell(Hero hero) {
+        hero.addGold(getSellValue());
+        hero.getInventory().useItem(this.getName());
+    }
     public int getLevelRequirement() { return levelRequirement; }
 
     @Override

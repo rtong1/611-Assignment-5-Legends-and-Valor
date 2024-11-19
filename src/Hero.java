@@ -1,9 +1,11 @@
+import java.util.Random;
+
 /**
  * Defines the Hero character type with specific attributes such as health, mana, and other attributes. Heroes
  * are player-controlled characters that may gain experience points, level up, and acquire items.
  */
 
-public class Hero extends Character {
+public class Hero extends Character implements Attackable<Monster> {
     protected String name;
     protected String heroClass;
     protected int experience;
@@ -143,6 +145,7 @@ public class Hero extends Character {
         currentHealth = Math.max(currentHealth - damage, 0);
     }
 
+
     @Override
     public boolean isAlive(){
         return currentHealth > 0;
@@ -222,6 +225,26 @@ public class Hero extends Character {
     public void deductGold(int amount) {
         if (amount <= gold) {
             gold -= amount;
+        }
+    }
+
+
+    public void attack(Monster target) {
+        Random random = new Random();
+        if (target != null) {
+            double weaponDamage = getInventory().useWeapon();
+            double damage = (getCurrentStrength() + weaponDamage) * 0.05;
+
+            if ((target.getDodgeChance() * 0.01) < (random.nextInt(100) + 1)) {  // If target does not dodge
+                target.takeDamage((int) Math.ceil(damage));
+                System.out.println(getName() + " attacked " + target.getName() + " for " + (int) Math.ceil(damage) + " damage.");
+                System.out.println(target.getName() + "'s remaining HP: " + target.getHealth());
+                if (!target.isAlive()) {
+                    System.out.println(target.getName() + " has been defeated!");
+                }
+            } else {
+                System.out.println(target.getName() + " dodged the attack from " + getName() + "!");
+            }
         }
     }
 

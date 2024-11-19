@@ -3,7 +3,7 @@
  * includes methods for applying its effects when used by characters.
  */
 
-public class Potion extends Item {
+public class Potion extends Item implements Buyable, Consumable {
     private int attributeIncrease;
     private String attributeAffected;
 
@@ -16,7 +16,8 @@ public class Potion extends Item {
     public int getAttributeIncrease() { return attributeIncrease; }
     public String getAttributeAffected() { return attributeAffected; }
 
-    public void apply(Hero hero) {
+    @Override
+    public void use(Hero hero) {
         switch (attributeAffected.toLowerCase()) {
             case "health":
                 hero.increaseHealth(attributeIncrease);
@@ -41,5 +42,7 @@ public class Potion extends Item {
             default:
                 System.out.println("Potion effect not applicable to this attribute.");
         }
+
+        hero.getInventory().useItem(getName());
     }
 }

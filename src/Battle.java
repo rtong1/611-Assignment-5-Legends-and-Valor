@@ -43,6 +43,9 @@ public class Battle {
                         monsterTurn(monster);
                     }
                 }
+                if (monsters.stream().noneMatch(Monster::isAlive)) {
+                    break;  // Exit the loop if no monsters are left alive
+                }
             }
             heroesTurn = !heroesTurn;  // Alternate turns
 
@@ -84,21 +87,7 @@ public class Battle {
 
     private void attack(Hero hero) {
         Monster target = selectTargetMonster();
-        if (target != null) {
-            double weaponDamage = hero.getInventory().useWeapon();
-            double damage = (hero.getCurrentStrength() + weaponDamage) * 0.05;
-
-            if ((target.getDodgeChance() * 0.01) < (random.nextInt(100) + 1)) {  // If target does not dodge
-                target.takeDamage((int) Math.ceil(damage));
-                System.out.println(hero.getName() + " attacked " + target.getName() + " for " + (int) Math.ceil(damage) + " damage.");
-                System.out.println(target.getName() + "'s remaining HP: " + target.getHealth());
-                if (!target.isAlive()) {
-                    System.out.println(target.getName() + " has been defeated!");
-                }
-            } else {
-                System.out.println(target.getName() + " dodged the attack from " + hero.getName() + "!");
-            }
-        }
+        hero.attack(target);
     }
 
     private void castSpell(Hero hero) {
@@ -121,7 +110,7 @@ public class Battle {
                 if (target != null) {
                     double damage = spell.getDamage() + (hero.getCurrentDexterity() / 10000.0) * spell.getDamage();
                     target.takeDamage((int) Math.ceil(damage));
-                    hero.reduceMana(spell.getManaCost());
+                    spell.use(hero);
                     System.out.println(hero.getName() + " cast " + spell.getName() + " on " + target.getName() + " for " + (int) Math.ceil(damage) + " damage.");
                     System.out.println(target.getName() + "'s remaining HP: " + target.getHealth());
 
@@ -154,8 +143,8 @@ public class Battle {
         int potionIndex = InputHandler.getInstance().getIntInput("Enter potion number: ") - 1;
         if (potionIndex >= 0 && potionIndex < potions.size()) {
             Potion potion = (Potion) potions.get(potionIndex);
-            potion.apply(hero);
-            hero.getInventory().useItem(potion.getName());
+            potion.use(hero);
+//            hero.getInventory().useItem(potion.getName());
             System.out.println(hero.getName() + " used " + potion.getName() + ".");
         } else {
             System.out.println("Invalid potion selection.");
@@ -166,28 +155,7 @@ public class Battle {
     private void monsterTurn(Monster monster) {
         System.out.println("\n" + monster.getName() + "'s turn!");
         Hero target = selectTargetHero();
-        if (target != null) {
-            double dodgeChance = target.getCurrentAgility() * 0.002;
-            double reducedDamage = monster.getBaseDamage() * 0.05 - target.getInventory().useArmor();
-            double damage = Math.max(0, reducedDamage);
-
-            // If hero fails to dodge
-            if ((random.nextInt(100) + 1) > dodgeChance) {
-                // Apply final damage
-                int finalDamage = (int) Math.ceil(damage);
-                target.takeDamage(finalDamage);
-
-                System.out.println(monster.getName() + " attacked " + target.getName() + " for " + finalDamage + " damage.");
-                System.out.println(target.getName() + "'s remaining HP: " + target.getCurrentHealth());
-
-                // Check if hero has fainted
-                if (!target.isAlive()) {
-                    System.out.println(target.getName() + " fainted!");
-                }
-            } else {
-                System.out.println(target.getName() + " dodged the attack from " + monster.getName() + "!");
-            }
-        }
+        monster.attack(target);
     }
 
     private Monster selectTargetMonster() {
