@@ -5,13 +5,17 @@ import java.util.Random;
  * are player-controlled characters that may gain experience points, level up, and acquire items.
  */
 
+
+
+
+
 public class Hero extends Character implements Attackable<Monster> {
     protected String name;
     protected String heroClass;
     protected int experience;
     protected int gold;
     protected int level;
-
+    private String heroIdentifier;
     // Base attributes
     protected int healthPoints;
     protected int manaPoints;
@@ -283,4 +287,36 @@ public class Hero extends Character implements Attackable<Monster> {
         int nextLevel = level + 1;
         System.out.println(this.getName() + " is " + experienceToNextLevel + " experiences points away to level " + nextLevel + "." );
     }
+
+    public int calculateDamage() {
+        // Base damage from the hero's current strength
+        int baseDamage = this.currentStrength;
+
+        // Use weapon damage from the inventory
+        int weaponDamage = this.inventory.useWeapon(); // Uses the `useWeapon()` method to determine total weapon damage
+
+        // Add weapon damage to the base damage
+        baseDamage += weaponDamage;
+
+        return baseDamage;
+    }
+
+
+
+
+    public void setHeroIdentifier(String identifier) {
+        this.heroIdentifier = identifier;
+    }
+
+    public String getHeroIdentifier() {
+        return heroIdentifier;
+    }
+
+    @Override
+    public String getSymbol() {
+        return heroIdentifier; // This will return H1, H2, H3 depending on the hero
+    }
+
+
+
 }

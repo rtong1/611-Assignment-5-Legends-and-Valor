@@ -16,7 +16,7 @@ public abstract class Character {
         this.healthPoints = level * 100;
         this.manaPoints = level * 50;
     }
-
+    public abstract String getSymbol();
     public String getName() { return name; }
     public int getHealthPoints() { return healthPoints; }
     public int getManaPoints() { return manaPoints; }
@@ -32,4 +32,5 @@ public abstract class Character {
     public String toString() {
         return "Name: " + name + ", Level=" + level;
     }
+
 }

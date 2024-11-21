@@ -7,6 +7,7 @@ import java.util.Random;
 
 public class Monster extends Character implements Attackable<Hero> {
     private int baseDamage;
+    private String monsterIdentifier;
     private int defense;
     private int dodgeChance;
 
@@ -122,4 +123,19 @@ public class Monster extends Character implements Attackable<Hero> {
         }
     }
 
+
+
+    public void setMonsterIdentifier(String identifier) {
+        this.monsterIdentifier = identifier;
+    }
+
+
+    public String getMonsterIdentifier() {
+        return monsterIdentifier;
+    }
+
+    @Override
+    public String getSymbol() {
+        return monsterIdentifier; // This will return M1, M2, M3 depending on the monster
+    }
 }

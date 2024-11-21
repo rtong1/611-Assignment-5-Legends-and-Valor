@@ -3,6 +3,7 @@
  */
 
 import java.util.InputMismatchException;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class InputHandler {
@@ -23,9 +24,18 @@ public class InputHandler {
     }
 
     public String getCommand() {
-        System.out.print("Enter command: ");
-        return scanner.nextLine();
+        try {
+            if (scanner.hasNextLine()) {
+                return scanner.nextLine();
+            } else {
+                return "Q"; // Default to quit if no line is available
+            }
+        } catch (NoSuchElementException e) {
+            System.out.println("No input available, exiting the game.");
+            return "Q";
+        }
     }
+
 
     public int getIntInput(String prompt) {
         int input = 0;
@@ -42,6 +52,18 @@ public class InputHandler {
         }
         scanner.nextLine();
         return input;
+    }
+
+    // Method to get string input
+    public String getStringInput(String prompt) {
+        System.out.print(prompt);
+        return scanner.next(); // Read a single word (without whitespace)
+    }
+
+    public String getLineInput(String prompt) {
+        System.out.print(prompt);
+        scanner.nextLine(); // Consume any lingering newline character
+        return scanner.nextLine();
     }
 
     public double getDoubleInput(String prompt) {
