@@ -1,6 +1,5 @@
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class lovWorld extends World {
@@ -15,35 +14,38 @@ public class lovWorld extends World {
 
     @Override
     public void displayMap() {
-        System.out.println("   ____________________________________________");
-        System.out.println(" / \\                                      \\. M for Monster");
-        System.out.println("|   |              World Map              |. H for Hero");
-        System.out.println(" \\_ |                                     |.");
-        System.out.println("    |  ╔═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╗|");
+        System.out.println("╔════╦════╦════╦════╦════╦════╦════╦════╗");
 
         for (int i = 0; i < grid.length; i++) {
-            System.out.print("    |  ║");
+            System.out.print("║");
             for (int j = 0; j < grid[i].length; j++) {
                 Space space = grid[i][j];
                 if (space != null && space.getOccupant() != null) {
-                    System.out.print(" " + space.getOccupant().getSymbol() + " ║");
+                    System.out.print(" " + space.getOccupant().getSymbol());
+                    if (space.getOccupant().getSymbol().length() < 2) {
+                        System.out.print("  ║");
+                    } else {
+                        System.out.print(" ║");
+                    }
                 } else if (space != null) {
-                    System.out.print(" " + space.getSymbol() + " ║");
+                    System.out.print(" " + space.getSymbol());
+                    if (space.getSymbol().length() < 2) {
+                        System.out.print("  ║");
+                    } else {
+                        System.out.print(" ║");
+                    }
+
                 } else {
                     System.out.print("   ║");  // Empty space
                 }
             }
             System.out.println();
             if (i < grid.length - 1) {
-                System.out.println("    |  ╠═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╣  |");
+                System.out.println("╠════╬════╬════╬════╬════╬════╬════╬════╣");
             }
         }
 
-        System.out.println("    |  ╚═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╝ |");
-        System.out.println("    |                                     |.");
-        System.out.println("/_ ______________________|__________________");
-        System.out.println("|  /                                    /.");
-        System.out.println("\\_/_______________________________________/. ");
+        System.out.println("╚════╩════╩════╩════╩════╩════╩════╩════╝");
     }
 
 
