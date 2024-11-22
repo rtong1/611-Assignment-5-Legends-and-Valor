@@ -7,8 +7,6 @@ import java.util.Random;
 
 
 
-
-
 public class Hero extends Character implements Attackable<Monster> {
     protected String name;
     protected String heroClass;
@@ -37,7 +35,7 @@ public class Hero extends Character implements Attackable<Monster> {
      /*
     Legends of Valor updates
      */
-    private int[] nexus = new int[2];
+    private final int[] nexus = new int[2];
 
     public Hero(String name, String heroClass, int manaPoints, int strength, int agility, int dexterity, int gold, int experience) {
         super(name, 1);

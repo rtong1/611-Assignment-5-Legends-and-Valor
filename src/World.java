@@ -141,10 +141,14 @@ public class World {
         }
     }
 
+    protected boolean isValidMoveNoPrint(int row, int col) {
+        return row >= 0 && row < this.row && col >= 0 && col < this.col && !(grid[row][col] instanceof InaccessibleSpace);
+    }
+
     protected boolean isValidMove(int row, int col) {
         // Check if the target row and col are within bounds
-        if (row < 0 || row >= size || col < 0 || col >= size) {
-            System.out.println("You have reached the edge of the world...(Out of bound)");
+        if (row < 0 || row >= this.row || col < 0 || col >= this.col) {
+           System.out.println("You have reached the edge of the world...(Out of bound)");
             return false;
         }
         // Check if the target cell is an inaccessible space

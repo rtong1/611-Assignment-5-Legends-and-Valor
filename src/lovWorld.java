@@ -50,8 +50,6 @@ public class lovWorld extends World {
 
 
 
-
-
     protected void initializeSpaces() {
         // Create a 8x8 grid
         grid = new Space[8][8];
@@ -116,6 +114,7 @@ public class lovWorld extends World {
             setHeroLocation(hero, 7, col);       // First space for the hero
             setHeroLocation(hero, 7, col + 1);   // Second space for the hero
 
+            hero.setNexus(7, col + 1);
             // Update the grid to reflect the heroes' positions
             grid[7][col].setOccupant(hero);
             grid[7][col + 1].setOccupant(hero);
@@ -295,6 +294,7 @@ public class lovWorld extends World {
 
             // Set new location for the hero
             setHeroLocation(hero, newRow, newCol);
+            grid[newRow][newCol].setOccupant(hero);
 
             // Apply terrain effect after moving
             applyTerrainEffect(hero, grid[newRow][newCol]);
@@ -318,8 +318,7 @@ public class lovWorld extends World {
         int teleportingHeroRow = teleportingHero.getHeroRow();
         int teleportingHeroCol = teleportingHero.getHeroCol();
 
-        // Check that teleporting is between different lanes
-        if (teleportingHeroRow == targetRow) {
+        if (Math.abs(teleportingHeroCol - targetCol) <= 1) {
             System.out.println("Teleport failed: Must teleport to a different lane.");
             return false;
         }
@@ -330,7 +329,6 @@ public class lovWorld extends World {
 
         // Define possible adjacent positions around the target hero
         int[][] adjacentPositions = {
-                {targetRow - 1, targetCol}, // Above
                 {targetRow + 1, targetCol}, // Below
                 {targetRow, targetCol - 1}, // Left
                 {targetRow, targetCol + 1}  // Right
@@ -341,7 +339,7 @@ public class lovWorld extends World {
             int newRow = pos[0];
             int newCol = pos[1];
 
-            if (isValidMove(newRow, newCol)) {
+            if (isValidMoveNoPrint(newRow, newCol) && (newRow!=teleportingHeroRow || newCol!=teleportingHeroCol)) {
                 setHeroLocation(teleportingHero, newRow, newCol);
                 System.out.println("Teleport successful.");
                 applyTerrainEffect(teleportingHero, grid[newRow][newCol]); // Apply terrain effect after teleporting
@@ -490,7 +488,11 @@ public class lovWorld extends World {
         return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
     }
 
-
+    public boolean isInNexus(Hero hero){
+        int row = hero.getHeroRow();
+        int col = hero.getHeroCol();
+        return (row == hero.getNexus()[0] && col == hero.getNexus()[1] );
+    }
 
 }
 
@@ -506,7 +508,7 @@ class NexusSpace extends Space {
 
     @Override
     public String getSymbol() {
-        return type.equals("Hero Nexus") ? "H" : "M";
+        return type.equals("Hero Nexus") ? "HN" : "MN";
     }
 }
 

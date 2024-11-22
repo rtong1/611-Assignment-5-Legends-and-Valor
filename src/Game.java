@@ -4,9 +4,7 @@
  *
  */
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Game {
     private List<Hero> heroes;
@@ -96,13 +94,15 @@ public class Game {
                     System.out.println("\nHero " + hero.getHeroIdentifier() + "'s turn:");
                     boolean inBattle = isHeroInBattle(hero, monsters);
 
+                    // Define actions based on mode
+                    List<String> actions = inBattle
+                            ? Arrays.asList("Move", "Attack", "Use Potion", "Change Weapon/Armor", "Cast Spell")
+                            : Arrays.asList("Move", "Use Potion", "Change Weapon/Armor", "Teleport", "Recall", "Shop");
+
                     // Display Available Actions
-                    if (inBattle) {
-                        System.out.println("Available actions for " + hero.getName() + " (Battle Mode):");
-                        System.out.println("1. Move\n2. Attack\n3. Use Potion\n4. Change Weapon/Armor\n5. Cast Spell\n6. Teleport\n7. Recall");
-                    } else {
-                        System.out.println("Available actions for " + hero.getName() + " (Exploration Mode):");
-                        System.out.println("1. Move\n2. Use Potion\n3. Change Weapon/Armor");
+                    System.out.println("Available actions for " + hero.getName() + " (" + (inBattle ? "Battle Mode" : "Exploration Mode") + "):");
+                    for (int i = 0; i < actions.size(); i++) {
+                        System.out.println((i + 1) + ". " + actions.get(i));
                     }
 
                     // Handle Hero Action
@@ -110,8 +110,16 @@ public class Game {
                     while (!validAction) {
                         int action = InputHandler.getInstance().getIntInput("Enter the action number: ");
 
-                        switch (action) {
-                            case 1: // Move
+                        // Validate action index
+                        if (action < 1 || action > actions.size()) {
+                            System.out.println("Invalid action. Please enter a valid number.");
+                            continue;
+                        }
+
+                        // Map action to functionality
+                        String selectedAction = actions.get(action - 1);
+                        switch (selectedAction) {
+                            case "Move":
                                 String direction = InputHandler.getInstance().getStringInput("Enter direction (w = up, a = left, s = down, d = right): ");
                                 if (world.moveHero(hero, direction)) {
                                     validAction = true;
@@ -120,7 +128,7 @@ public class Game {
                                 }
                                 break;
 
-                            case 2: // Attack (only available in Battle Mode)
+                            case "Attack":
                                 if (inBattle) {
                                     Monster target = world.selectTargetMonster(hero, monsters);
                                     if (target != null) {
@@ -139,17 +147,17 @@ public class Game {
                                 }
                                 break;
 
-                            case 3: // Use Potion
+                            case "Use Potion":
                                 world.usePotion(hero);
                                 validAction = true;
                                 break;
 
-                            case 4: // Change Weapon/Armor
+                            case "Change Weapon/Armor":
                                 hero.getInventory().equipItem();
                                 validAction = true;
                                 break;
 
-                            case 5: // Cast Spell (only available in Battle Mode)
+                            case "Cast Spell":
                                 if (inBattle) {
                                     world.castSpell(hero);
                                     validAction = true;
@@ -158,16 +166,47 @@ public class Game {
                                 }
                                 break;
 
-                            case 6: // Teleport (Placeholder)
-                                System.out.println("Teleport is not yet implemented.");
-                                validAction = true;
+                            case "Teleport":
+                                System.out.println("\nChoose a hero you want to teleport to:");
+
+                                List<Hero> teleportableHeroes = new ArrayList<>();
+                                for (Hero target : heroes) {
+                                    if (target != hero) {
+                                        teleportableHeroes.add(target);
+                                    }
+                                }
+
+                                for (int i = 0; i < teleportableHeroes.size(); i++) {
+                                    System.out.println((i + 1) + ". " + teleportableHeroes.get(i).getName()+" (" + teleportableHeroes.get(i).getHeroIdentifier() + ")");
+                                }
+
+                                int heroIndex = InputHandler.getInstance().getIntInput("Enter the hero's number: ") - 1;
+                                while (heroIndex < 0 || heroIndex >= teleportableHeroes.size()) {
+                                    System.out.println("Invalid selection. Please try again.");
+                                    heroIndex = InputHandler.getInstance().getIntInput("Enter the hero's number: ") - 1;
+                                }
+
+                                // Perform the teleport
+                                Hero targetHero = teleportableHeroes.get(heroIndex);
+                                if (world.teleportHero(hero, targetHero)) {
+                                    validAction = true;
+                                    world.updateBoard(heroes, monsters);
+                                    world.displayMap();
+                                }
                                 break;
 
-                            case 7: // Recall
+                            case "Recall":
                                 if (world.recallHero(hero)) {
                                     validAction = true;
                                     world.updateBoard(heroes, monsters);
                                     world.displayMap();
+                                }
+                                break;
+                            case "Shop":
+                                if (world.isInNexus(hero)) {
+                                    lovNexuesMarket(hero);
+                                } else {
+                                    System.out.println(hero.getName() + " is not in the nexus.");
                                 }
                                 break;
 
@@ -243,7 +282,6 @@ public class Game {
     }
 
 
-
     private boolean attemptMove(String direction) {
         // Attempt the move in the specified direction
         if (!world.moveParty(direction)) {
@@ -296,6 +334,14 @@ public class Game {
                     hero = HeroFactory.createHero("Warrior");
             }
 
+            // Add a check to avoid adding duplicate heroes
+            boolean isDuplicate = heroes.stream().anyMatch(existingHero -> existingHero.getName().equalsIgnoreCase(hero.getName()));
+            if (isDuplicate) {
+                System.out.println("Hero already chosen! Please select a different hero.");
+                i--; // decrement to retry the selection
+                continue;
+            }
+
             // Assign an identifier to the hero (H1, H2, H3)
             hero.setHeroIdentifier("H" + (i + 1));
             System.out.println("Debug: Hero identifier assigned as: " + hero.getHeroIdentifier());
@@ -343,6 +389,10 @@ public class Game {
     }
 
 
+    private void lovNexuesMarket(Hero hero) {
+        System.out.println("\n" + hero.getName() + " is entering the market with " + hero.getGold() + " gold.");
+        market.enterMarket(hero);
+    }
 
     private void enterMarket() {
         List<Hero> availableHeroes = new ArrayList<>(heroes);
