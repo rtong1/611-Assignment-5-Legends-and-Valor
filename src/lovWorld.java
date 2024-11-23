@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -251,22 +252,31 @@ public class lovWorld extends World {
     public Monster selectTargetMonster(Hero hero, List<Monster> monsters) {
         System.out.println("Select a monster to attack:");
 
-        for (int i = 0; i < monsters.size(); i++) {
-            Monster monster = monsters.get(i);
-            if (monster.isAlive() && Math.abs(hero.getHeroRow() - monster.getMonsterRow()) <= 1 &&
-                    Math.abs(hero.getHeroCol() - monster.getMonsterCol()) <= 1) {
-                System.out.println((i + 1) + ". " + monster.getName() + " (HP: " + monster.getCurrentHealth() + ")");
-            }
+        // Filter and display only alive monsters within range
+        List<Monster> monstersInRange = getMonstersInRange(hero, monsters);
+
+        if (monstersInRange.isEmpty()) {
+            System.out.println("No monsters are within attack range.");
+            return null;
+        }
+
+        for (int i = 0; i < monstersInRange.size(); i++) {
+            Monster monster = monstersInRange.get(i);
+            System.out.println((i + 1) + ". " + monster.getName() + " (HP: " + monster.getCurrentHealth() + ")");
         }
 
         int choice = InputHandler.getInstance().getIntInput("Enter the index of the monster you'd like to attack: ");
-        if (choice > 0 && choice <= monsters.size() && monsters.get(choice - 1).isAlive()) {
-            return monsters.get(choice - 1);
-        } else {
-            System.out.println("Invalid selection.");
-            return null;
+        if (choice > 0 && choice <= monstersInRange.size()) {
+            Monster target = monstersInRange.get(choice - 1);
+            if (target.isAlive()) {
+                return target;
+            }
         }
+        System.out.println("Invalid selection or target is already defeated.");
+        return null;
     }
+
+
 
 
 
@@ -382,6 +392,24 @@ public class lovWorld extends World {
         }
     }
 
+    public List<Monster> getMonstersInRange(Hero hero, List<Monster> monsters) {
+        List<Monster> monstersInRange = new ArrayList<>();
+        int heroRow = hero.getHeroRow();
+        int heroCol = hero.getHeroCol();
+
+        for (Monster monster : monsters) {
+            if (monster.isAlive()) {
+                int monsterRow = monster.getMonsterRow();
+                int monsterCol = monster.getMonsterCol();
+
+                // Check if monster is adjacent to the hero
+                if (Math.abs(heroRow - monsterRow) <= 1 && Math.abs(heroCol - monsterCol) <= 1) {
+                    monstersInRange.add(monster);
+                }
+            }
+        }
+        return monstersInRange;
+    }
 
 
     // Check if a hero is in battle, i.e., if there are any monsters in attack range

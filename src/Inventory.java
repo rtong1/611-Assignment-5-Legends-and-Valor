@@ -137,16 +137,57 @@ public class Inventory {
 
     public int useWeapon() {
         if (equippedWeapons.isEmpty()) {
-            return 0;
-        } else if (equippedWeapons.size() == 1) {
-            Weapon weapon = equippedWeapons.get(0);
-            // 50% more damage for double handed weapon
-            return weapon.getRequiredHands() == 2 ? (int) (weapon.getDamage() * 1.5) : weapon.getDamage();
+            return 0; // No weapon equipped, no damage
+        }
+
+        // Validate the first weapon
+        Weapon weapon = equippedWeapons.get(0);
+        if (weapon == null || weapon.getDamage() < 0) {
+            System.out.println("DEBUG: Invalid weapon or negative damage for equipped weapon.");
+            return 0; // Default to no damage if invalid
+        }
+
+        if (equippedWeapons.size() == 1) {
+            // Handle single weapon case
+            int damage = weapon.getDamage();
+            if (weapon.getRequiredHands() == 2) {
+                damage *= 1.5; // 50% more damage for double-handed weapon
+            }
+
+            // Log and validate the final damage
+            if (damage > 1000) { // Arbitrary upper bound for damage
+                System.out.println("DEBUG: Weapon damage out of bounds: " + damage);
+                damage = 1000; // Cap the damage to a reasonable value
+            }
+
+            return (int) damage;
         } else {
-            // Sum damage of two one-handed weapons
-            return equippedWeapons.get(0).getDamage() + equippedWeapons.get(1).getDamage();
+            // Validate the second weapon
+            Weapon secondWeapon = equippedWeapons.get(1);
+            if (secondWeapon == null || secondWeapon.getDamage() < 0) {
+                System.out.println("DEBUG: Invalid second weapon or negative damage.");
+                return equippedWeapons.get(0).getDamage(); // Use only the first weapon's damage
+            }
+
+            // Both weapons must be one-handed
+            if (weapon.getRequiredHands() != 1 || secondWeapon.getRequiredHands() != 1) {
+                System.out.println("DEBUG: Invalid weapon configuration. Only one-handed weapons allowed for dual wielding.");
+                return weapon.getDamage(); // Default to the first weapon's damage
+            }
+
+            // Sum the damage of both one-handed weapons
+            int totalDamage = weapon.getDamage() + secondWeapon.getDamage();
+
+            // Log and validate the final damage
+            if (totalDamage > 1000) { // Arbitrary upper bound for total damage
+                System.out.println("DEBUG: Total weapon damage out of bounds: " + totalDamage);
+                totalDamage = 1000; // Cap the damage to a reasonable value
+            }
+
+            return totalDamage;
         }
     }
+
 
     public int useArmor() {
         return equippedArmor != null ? equippedArmor.getDamageReduction() : 0;

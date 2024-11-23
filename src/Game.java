@@ -132,20 +132,21 @@ public class Game {
                                 if (inBattle) {
                                     Monster target = world.selectTargetMonster(hero, monsters);
                                     if (target != null) {
-                                        int damage = hero.calculateDamage();
-                                        hero.attack(target);
-                                        System.out.println(hero.getName() + " attacked " + target.getName() + " for " + damage + " damage.");
-                                        if (!target.isAlive()) {
-                                            System.out.println(target.getName() + " has been defeated!");
+                                        // Attack only if the monster is alive
+                                        if (target.isAlive()) {
+                                            hero.attack(target); // Perform the attack
+                                            validAction = true; // Mark the action as complete
+                                        } else {
+                                            System.out.println(target.getName() + " is already defeated and cannot be attacked.");
                                         }
-                                        validAction = true;
                                     } else {
-                                        System.out.println("No target within attack range.");
+                                        System.out.println("No valid target selected.");
                                     }
                                 } else {
                                     System.out.println("Invalid action. Attack is only available in Battle Mode.");
                                 }
                                 break;
+
 
                             case "Use Potion":
                                 world.usePotion(hero);

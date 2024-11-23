@@ -233,22 +233,38 @@ public class Hero extends Character implements Attackable<Monster> {
 
     public void attack(Monster target) {
         Random random = new Random();
-        if (target != null) {
-            double weaponDamage = getInventory().useWeapon();
-            double damage = (getCurrentStrength() + weaponDamage) * 0.05;
 
-            if ((target.getDodgeChance() * 0.01) < (random.nextInt(100) + 1)) {  // If target does not dodge
-                target.takeDamage((int) Math.ceil(damage));
-                System.out.println(getName() + " attacked " + target.getName() + " for " + (int) Math.ceil(damage) + " damage.");
-                System.out.println(target.getName() + "'s remaining HP: " + target.getHealth());
-                if (!target.isAlive()) {
-                    System.out.println(target.getName() + " has been defeated!");
-                }
-            } else {
-                System.out.println(target.getName() + " dodged the attack from " + getName() + "!");
+        if (target == null) {
+            System.out.println("No target to attack.");
+            return;
+        }
+
+        if (!target.isAlive()) {
+            System.out.println(target.getName() + " is already defeated and cannot be attacked.");
+            return;
+        }
+
+        // Calculate damage
+        double weaponDamage = getInventory().useWeapon();
+        double damage = (getCurrentStrength() + weaponDamage) * 0.05;
+
+        // Dodge chance calculation
+        int dodgeRoll = random.nextInt(100) + 1;
+        double dodgeChance = target.getDodgeChance() * 0.01;
+
+        if (dodgeRoll > dodgeChance * 100) {  // Target does not dodge
+            target.takeDamage((int) Math.ceil(damage));
+            System.out.println(getName() + " attacked " + target.getName() + " for " + (int) Math.ceil(damage) + " damage.");
+            System.out.println(target.getName() + "'s remaining HP: " + target.getHealth());
+
+            if (!target.isAlive()) {
+                System.out.println(target.getName() + " has been defeated!");
             }
+        } else {
+            System.out.println(target.getName() + " dodged the attack from " + getName() + "!");
         }
     }
+
 
     /*
     Legends of Valor updates
